@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Diabetrix — AI Diabetes Management</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 1: AUTH
+═══════════════════════════════════════ -->
+<div id="screen-auth" class="screen active">
+  <div class="auth-bg">
+    <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+  </div>
+  <div class="auth-card">
+    <div class="brand">
+      <span class="hex-logo">⬡</span>
+      <h1>Diabetrix</h1>
+      <p>AI-Powered Diabetes Intelligence</p>
+    </div>
+    <div class="auth-tabs">
+      <button id="tab-login-btn" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+      <button id="tab-signup-btn" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <!-- Login -->
+    <div id="panel-login" class="auth-panel active">
+      <div class="field"><label>Email</label><input type="email" id="inp-login-email" placeholder="you@email.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="inp-login-pass" placeholder="••••••••"/></div>
+      <div id="login-error" class="form-error hidden"></div>
+      <button class="btn-primary w100 mt8" onclick="doLogin()">Login →</button>
+      <p class="hint">New here? Click Sign Up to create an account.</p>
+    </div>
+    <!-- Signup -->
+    <div id="panel-signup" class="auth-panel">
+      <div class="field"><label>Full Name</label><input type="text" id="inp-signup-name" placeholder="Your full name"/></div>
+      <div class="field"><label>Email</label><input type="email" id="inp-signup-email" placeholder="you@email.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="inp-signup-pass" placeholder="Min 6 characters"/></div>
+      <div id="signup-error" class="form-error hidden"></div>
+      <button class="btn-primary w100 mt8" onclick="doSignup()">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 2: ONBOARDING (Profile Creation)
+═══════════════════════════════════════ -->
+<div id="screen-onboard" class="screen">
+  <div class="onboard-bg">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+  </div>
+  <div class="onboard-wrap">
+    <!-- Steps indicator -->
+    <div class="ob-steps">
+      <div class="ob-step active" id="obs-1"><span>1</span><small>Personal</small></div>
+      <div class="ob-line"></div>
+      <div class="ob-step" id="obs-2"><span>2</span><small>Medical</small></div>
+      <div class="ob-line"></div>
+      <div class="ob-step" id="obs-3"><span>3</span><small>Emergency</small></div>
+      <div class="ob-line"></div>
+      <div class="ob-step" id="obs-4"><span>4</span><small>Done</small></div>
+    </div>
+
+    <!-- Step 1: Personal Info -->
+    <div id="ob-panel-1" class="ob-panel active">
+      <div class="ob-icon">👤</div>
+      <h2>Tell us about yourself</h2>
+      <p class="ob-sub">We'll personalize everything for you</p>
+      <div class="ob-form">
+        <div class="field"><label>Full Name</label><input type="text" id="ob-name" placeholder="Your full name"/></div>
+        <div class="two-col-sm">
+          <div class="field"><label>Age</label><input type="number" id="ob-age" placeholder="e.g. 45" min="1" max="120"/></div>
+          <div class="field"><label>Gender</label>
+            <select id="ob-gender"><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select>
+          </div>
+        </div>
+        <div class="two-col-sm">
+          <div class="field"><label>Weight (kg)</label><input type="number" id="ob-weight" placeholder="e.g. 70"/></div>
+          <div class="field"><label>Height (cm)</label><input type="number" id="ob-height" placeholder="e.g. 170"/></div>
+        </div>
+        <div class="field"><label>Lifestyle</label>
+          <select id="ob-lifestyle">
+            <option value="sedentary">Sedentary (desk job, no exercise)</option>
+            <option value="light">Light (walks, light activity)</option>
+            <option value="moderate">Moderate (regular exercise)</option>
+            <option value="active">Active (gym, sports)</option>
+          </select>
+        </div>
+      </div>
+      <div id="ob-err-1" class="form-error hidden"></div>
+      <button class="btn-primary w100 mt16" onclick="obNext(1)">Continue →</button>
+    </div>
+
+    <!-- Step 2: Medical Info -->
+    <div id="ob-panel-2" class="ob-panel">
+      <div class="ob-icon">🩺</div>
+      <h2>Medical Information</h2>
+      <p class="ob-sub">Helps us build your personalized plan</p>
+      <div class="ob-form">
+        <div class="field"><label>Diabetes Type</label>
+          <select id="ob-dtype">
+            <option value="type1">Type 1 Diabetes</option>
+            <option value="type2">Type 2 Diabetes</option>
+            <option value="prediabetes">Pre-diabetes</option>
+            <option value="gestational">Gestational Diabetes</option>
+          </select>
+        </div>
+        <div class="field"><label>Year Diagnosed</label><input type="number" id="ob-year" placeholder="e.g. 2018" min="1950" max="2025"/></div>
+        <div class="field"><label>Current Medications (optional)</label><input type="text" id="ob-meds-text" placeholder="e.g. Metformin, Insulin..."/></div>
+        <div class="field"><label>Known Allergies (optional)</label><input type="text" id="ob-allergies" placeholder="e.g. Penicillin, Sulfa..."/></div>
+        <div class="field"><label>Doctor's Name (optional)</label><input type="text" id="ob-doc" placeholder="Dr. Name"/></div>
+        <div class="field"><label>Target Glucose Range (mg/dL)</label>
+          <div class="range-row">
+            <input type="number" id="ob-low" placeholder="Low (e.g. 80)"/>
+            <span class="range-dash">—</span>
+            <input type="number" id="ob-high" placeholder="High (e.g. 140)"/>
+          </div>
+        </div>
+      </div>
+      <div id="ob-err-2" class="form-error hidden"></div>
+      <div class="ob-btn-row">
+        <button class="btn-secondary" onclick="obBack(2)">← Back</button>
+        <button class="btn-primary" onclick="obNext(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Emergency Contact -->
+    <div id="ob-panel-3" class="ob-panel">
+      <div class="ob-icon">🚨</div>
+      <h2>Emergency Contact</h2>
+      <p class="ob-sub">We'll alert them if you need help. This is critical for your safety.</p>
+      <div class="ob-form">
+        <div class="field"><label>Contact Name</label><input type="text" id="ob-ec-name" placeholder="Doctor / Spouse / Parent"/></div>
+        <div class="field"><label>Phone Number</label><input type="tel" id="ob-ec-phone" placeholder="+91 98765 43210"/></div>
+        <div class="field"><label>Relationship</label><input type="text" id="ob-ec-rel" placeholder="e.g. Spouse, Doctor, Parent"/></div>
+        <div class="field"><label>Backup Contact Name (optional)</label><input type="text" id="ob-ec2-name" placeholder="Second contact name"/></div>
+        <div class="field"><label>Backup Phone (optional)</label><input type="tel" id="ob-ec2-phone" placeholder="+91 98765 43211"/></div>
+        <div class="ec-notice">
+          <span class="ec-icon">ℹ️</span>
+          <span>In an emergency, Diabetrix will send your GPS location and health status to these contacts automatically.</span>
+        </div>
+      </div>
+      <div id="ob-err-3" class="form-error hidden"></div>
+      <div class="ob-btn-row">
+        <button class="btn-secondary" onclick="obBack(3)">← Back</button>
+        <button class="btn-primary" onclick="obNext(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Done / Plan Preview -->
+    <div id="ob-panel-4" class="ob-panel">
+      <div class="ob-icon">✅</div>
+      <h2>Your Plan is Ready!</h2>
+      <p class="ob-sub">Based on your profile, here's what we've prepared for you</p>
+      <div id="ob-plan-preview" class="ob-plan-preview"></div>
+      <button class="btn-primary w100 mt16" onclick="finishOnboarding()">Start Using Diabetrix →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3: MAIN APP
+═══════════════════════════════════════ -->
+<div id="screen-app" class="screen">
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-logo">
+      <span class="hex-logo small">⬡</span>
+      <span>Diabetrix</span>
+    </div>
+    <nav>
+      <button class="nav-btn active" data-page="dashboard"       onclick="goTo('dashboard')"><span class="nav-icon">⊡</span>Dashboard</button>
+      <button class="nav-btn"        data-page="sugar"           onclick="goTo('sugar')"><span class="nav-icon">◎</span>Sugar Entry</button>
+      <button class="nav-btn"        data-page="trends"          onclick="goTo('trends')"><span class="nav-icon">◈</span>Trends</button>
+      <button class="nav-btn"        data-page="ai"              onclick="goTo('ai')"><span class="nav-icon">◬</span>AI Predictions</button>
+      <button class="nav-btn"        data-page="diet"            onclick="goTo('diet')"><span class="nav-icon">◍</span>Diet & Exercise</button>
+      <button class="nav-btn"        data-page="meds"            onclick="goTo('meds')"><span class="nav-icon">◉</span>Medications</button>
+      <button class="nav-btn"        data-page="safety"          onclick="goTo('safety')"><span class="nav-icon">◐</span>Safety Monitor</button>
+      <button class="nav-btn"        data-page="reports"         onclick="goTo('reports')"><span class="nav-icon">◑</span>Reports</button>
+      <button class="nav-btn"        data-page="profile"         onclick="goTo('profile')"><span class="nav-icon">◒</span>Profile</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div id="sidebar-user" class="sidebar-user"></div>
+      <button class="logout-btn" onclick="doLogout()">⊗ Logout</button>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <span class="topbar-page" id="topbar-page">Dashboard</span>
+      <div class="topbar-right">
+        <div class="score-pill" id="topbar-score">Score: --</div>
+        <div class="avatar" id="topbar-avatar">U</div>
+      </div>
+    </header>
+
+    <div class="pages-wrap">
+
+      <!-- ── DASHBOARD ── -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-hd">
+          <h2>Good day, <span id="dash-username">User</span> 👋</h2>
+          <p>Your health overview at a glance</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat-box teal"><div class="stat-lbl">Last Glucose</div><div class="stat-num" id="d-glucose">-- mg/dL</div><div class="stat-sub" id="d-glucose-time">No entry yet</div></div>
+          <div class="stat-box amber"><div class="stat-lbl">Health Score</div><div class="stat-num" id="d-score">--</div><div class="stat-sub">/ 100</div></div>
+          <div class="stat-box rose"><div class="stat-lbl">Risk Level</div><div class="stat-num" id="d-risk">--</div><div class="stat-sub" id="d-risk-sub">Awaiting data</div></div>
+          <div class="stat-box indigo"><div class="stat-lbl">Steps Today</div><div class="stat-num" id="d-steps">0</div><div class="stat-sub">Goal: <span id="d-step-goal">8,000</span></div></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Quick Glucose Log</div>
+            <div class="quick-row">
+              <input type="number" id="q-val" placeholder="mg/dL"/>
+              <select id="q-meal">
+                <option value="fasting">Fasting</option>
+                <option value="before_meal">Before Meal</option>
+                <option value="after_meal">After Meal</option>
+                <option value="bedtime">Bedtime</option>
+              </select>
+              <button class="btn-primary" onclick="quickLog()">Log</button>
+            </div>
+            <div id="q-alert" class="inline-alert hidden"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Today's Plan</div>
+            <div id="d-today-plan" class="today-plan"></div>
+          </div>
+        </div>
+        <div class="card mt16">
+          <div class="card-title">7-Day Glucose Trend</div>
+          <canvas id="dash-chart" height="75"></canvas>
+          <div id="dash-no-data" class="no-data-msg hidden">Log glucose readings to see your trend chart.</div>
+        </div>
+      </div>
+
+      <!-- ── SUGAR ENTRY ── -->
+      <div id="page-sugar" class="page">
+        <div class="page-hd"><h2>Sugar Entry</h2><p>Record and classify your blood glucose readings</p></div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">New Reading</div>
+            <div class="field"><label>Blood Glucose (mg/dL)</label><input type="number" id="se-val" placeholder="e.g. 120"/></div>
+            <div class="field"><label>Meal Context</label>
+              <select id="se-meal"><option value="fasting">Fasting</option><option value="before_meal">Before Meal</option><option value="after_meal">After Meal</option><option value="bedtime">Bedtime</option></select>
+            </div>
+            <div class="field"><label>Notes (optional)</label><input type="text" id="se-note" placeholder="Symptoms, food eaten..."/></div>
+            <button class="btn-primary w100 mt8" onclick="logSugar()">Record Reading</button>
+            <div id="se-alert" class="inline-alert hidden"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Your Target Range</div>
+            <div id="target-display" class="target-display"></div>
+            <div class="card-title" style="margin-top:16px">Classification Guide</div>
+            <div class="guide-list">
+              <div class="guide-row blue"><span class="gdot"></span>Hypoglycemia — below 70 mg/dL</div>
+              <div class="guide-row teal"><span class="gdot"></span>Normal — 70 to 99 mg/dL</div>
+              <div class="guide-row amber"><span class="gdot"></span>Pre-diabetic — 100 to 125 mg/dL</div>
+              <div class="guide-row rose"><span class="gdot"></span>Diabetic — 126 mg/dL and above</div>
+              <div class="guide-row red"><span class="gdot"></span>Critical — above 300 mg/dL 🚨</div>
+            </div>
+          </div>
+        </div>
+        <div class="card mt16">
+          <div class="card-title">Reading History</div>
+          <div id="sugar-history"><div class="empty-msg">No readings yet — log your first above.</div></div>
+        </div>
+      </div>
+
+      <!-- ── TRENDS ── -->
+      <div id="page-trends" class="page">
+        <div class="page-hd"><h2>Trend Analysis</h2><p>Visualize glucose patterns over time</p></div>
+        <div class="card">
+          <div class="card-title-row">
+            <span class="card-title" style="margin-bottom:0">Glucose Over Time</span>
+            <div class="filter-group">
+              <button class="fbtn active" onclick="setFilter(7,this)">7D</button>
+              <button class="fbtn" onclick="setFilter(14,this)">14D</button>
+              <button class="fbtn" onclick="setFilter(30,this)">30D</button>
+            </div>
+          </div>
+          <canvas id="trend-chart" height="100"></canvas>
+          <div id="trend-no-data" class="no-data-msg hidden">Log readings to see your trend chart.</div>
+        </div>
+        <div class="stats-row mt16">
+          <div class="stat-box teal"><div class="stat-lbl">Average</div><div class="stat-num" id="t-avg">--</div><div class="stat-sub">mg/dL</div></div>
+          <div class="stat-box amber"><div class="stat-lbl">Highest</div><div class="stat-num" id="t-max">--</div><div class="stat-sub">mg/dL</div></div>
+          <div class="stat-box rose"><div class="stat-lbl">Lowest</div><div class="stat-num" id="t-min">--</div><div class="stat-sub">mg/dL</div></div>
+          <div class="stat-box indigo"><div class="stat-lbl">In Range</div><div class="stat-num" id="t-range">--</div><div class="stat-sub">% readings</div></div>
+        </div>
+      </div>
+
+      <!-- ── AI PREDICTIONS ── -->
+      <div id="page-ai" class="page">
+        <div class="page-hd"><h2>AI Risk Prediction</h2><p>Intelligent analysis of your health data</p></div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Risk Assessment</div>
+            <div class="ai-badge-row"><span>Current Risk</span><span id="ai-risk-badge" class="rbadge low">Low</span></div>
+            <div class="risk-bar-wrap">
+              <div class="risk-bar"><div id="ai-risk-fill" class="risk-fill" style="width:15%"></div></div>
+              <div class="risk-scale"><span>Low</span><span>Moderate</span><span>High</span><span>Critical</span></div>
+            </div>
+            <button class="btn-primary w100 mt16" onclick="runAI()">⬡ Run AI Analysis</button>
+            <div id="ai-output" class="ai-output hidden"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Health Score</div>
+            <div class="ring-wrap">
+              <svg viewBox="0 0 120 120" class="ring-svg">
+                <circle cx="60" cy="60" r="50" class="ring-track"/>
+                <circle cx="60" cy="60" r="50" class="ring-prog" id="ring-prog" stroke-dasharray="314" stroke-dashoffset="314"/>
+              </svg>
+              <div class="ring-center"><div class="ring-num" id="ring-num">--</div><div class="ring-sub">/ 100</div></div>
+            </div>
+            <div class="score-rows">
+              <div class="score-row-item"><span>Glucose Control</span><span id="sc-gluc" class="sc-val">—</span></div>
+              <div class="score-row-item"><span>Physical Activity</span><span id="sc-act" class="sc-val">—</span></div>
+              <div class="score-row-item"><span>Medication</span><span id="sc-med" class="sc-val">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DIET & EXERCISE ── -->
+      <div id="page-diet" class="page">
+        <div class="page-hd"><h2>Diet &amp; Exercise Plan</h2><p>Personalized for your age, diabetes type, and lifestyle</p></div>
+
+        <div class="profile-banner" id="diet-profile-banner"></div>
+
+        <!-- Diet Plan -->
+        <div class="card mt16">
+          <div class="card-title">🥗 Personalized Diet Plan</div>
+          <div id="diet-plan-content"></div>
+        </div>
+
+        <!-- Exercise Plan -->
+        <div class="card mt16">
+          <div class="card-title">🏃 Personalized Exercise Plan</div>
+          <div id="exercise-plan-content"></div>
+        </div>
+
+        <!-- Walking Tracker -->
+        <div class="card mt16">
+          <div class="card-title">👟 Daily Step Tracker</div>
+          <div class="walk-nums">
+            <div class="wnum-block"><div class="wnum" id="w-steps">0</div><div class="wlbl">Steps Today</div></div>
+            <div class="wdivider"></div>
+            <div class="wnum-block"><div class="wnum" id="w-goal-display">8,000</div><div class="wlbl">Daily Goal</div></div>
+          </div>
+          <div class="walk-bar-wrap">
+            <div class="walk-track"><div id="w-fill" class="walk-fill" style="width:0%"></div></div>
+            <span id="w-pct" class="walk-pct">0%</span>
+          </div>
+          <div class="field mt16">
+            <label>Log Steps</label>
+            <div class="row-input">
+              <input type="number" id="step-inp" placeholder="Steps walked"/>
+              <button class="btn-primary" onclick="addSteps()">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Foods to Avoid -->
+        <div class="card mt16">
+          <div class="card-title">🚫 Foods to Avoid</div>
+          <div id="avoid-foods-content"></div>
+        </div>
+
+        <!-- Cheat Day -->
+        <div class="card mt16">
+          <div class="card-title">🎉 Weekly Cheat Day</div>
+          <div id="cheat-day-section"></div>
+        </div>
+      </div>
+
+      <!-- ── MEDICATIONS ── -->
+      <div id="page-meds" class="page">
+        <div class="page-hd"><h2>Medication Reminders</h2><p>Track adherence and set reminders</p></div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Add Medication</div>
+            <div class="field"><label>Medication Name</label><input type="text" id="m-name" placeholder="e.g. Metformin"/></div>
+            <div class="field"><label>Dosage</label><input type="text" id="m-dose" placeholder="e.g. 500mg"/></div>
+            <div class="field"><label>Time</label><input type="time" id="m-time" value="08:00"/></div>
+            <div class="field"><label>Frequency</label>
+              <select id="m-freq"><option>Once daily</option><option>Twice daily</option><option>Three times daily</option><option>With meals</option></select>
+            </div>
+            <button class="btn-primary w100 mt8" onclick="addMed()">Add Reminder</button>
+          </div>
+          <div class="card">
+            <div class="card-title">Today's Medications</div>
+            <div id="med-list"><div class="empty-msg">No medications added yet.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SAFETY MONITOR ── -->
+      <div id="page-safety" class="page">
+        <div class="page-hd"><h2>Safety Monitor</h2><p>Automated wellbeing checks &amp; emergency response system</p></div>
+
+        <div class="safety-system-card">
+          <div class="safety-system-header">
+            <div class="ss-icon">🛡️</div>
+            <div>
+              <div class="ss-title">Safety Check System</div>
+              <div class="ss-sub">Checks on you every 20 minutes automatically</div>
+            </div>
+            <div class="ss-toggle-wrap">
+              <label class="toggle-switch">
+                <input type="checkbox" id="safety-toggle" checked onchange="toggleSafetySystem()"/>
+                <span class="toggle-slider"></span>
+              </label>
+              <span id="safety-status-label" class="ss-on">Active</span>
+            </div>
+          </div>
+          <div class="ss-countdown-row">
+            <span>Next check in:</span>
+            <span class="ss-countdown" id="ss-countdown">20:00</span>
+          </div>
+        </div>
+
+        <div class="two-col mt16">
+          <div class="card">
+            <div class="card-title">Emergency Contacts</div>
+            <div class="field"><label>Contact Name</label><input type="text" id="ec-name" placeholder="Doctor / Family member"/></div>
+            <div class="field"><label>Phone Number</label><input type="tel" id="ec-phone" placeholder="+91 98765 43210"/></div>
+            <div class="field"><label>Relationship</label><input type="text" id="ec-rel" placeholder="Doctor / Spouse / Parent"/></div>
+            <button class="btn-primary w100 mt8" onclick="addContact()">Add Contact</button>
+            <div id="contact-list" class="contact-list mt16"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Manual Check-In</div>
+            <div class="pulse-wrap">
+              <div class="pulse-ring r1"></div><div class="pulse-ring r2"></div>
+              <div class="pulse-heart">♡</div>
+            </div>
+            <p class="safety-text">You can manually confirm your status or trigger an emergency alert at any time.</p>
+            <div class="safety-btns">
+              <button class="btn-primary" onclick="manualOkay()">✓ I'm Okay</button>
+              <button class="btn-danger" onclick="manualEmergency()">⚠ Emergency</button>
+            </div>
+            <div id="manual-safety-msg" class="inline-alert hidden"></div>
+          </div>
+        </div>
+
+        <!-- Alert History -->
+        <div class="card mt16">
+          <div class="card-title">Safety Log</div>
+          <div id="safety-log" class="safety-log"><div class="empty-msg">No safety events recorded yet.</div></div>
+        </div>
+      </div>
+
+      <!-- ── REPORTS ── -->
+      <div id="page-reports" class="page">
+        <div class="page-hd"><h2>Reports &amp; Records</h2><p>Auto-generated health summaries</p></div>
+        <div class="stats-row">
+          <div class="stat-box teal"><div class="stat-lbl">Total Readings</div><div class="stat-num" id="r-total">0</div><div class="stat-sub">All time</div></div>
+          <div class="stat-box amber"><div class="stat-lbl">Avg Glucose</div><div class="stat-num" id="r-avg">--</div><div class="stat-sub">mg/dL</div></div>
+          <div class="stat-box rose"><div class="stat-lbl">Hypo Events</div><div class="stat-num" id="r-hypo">0</div><div class="stat-sub">Below 70</div></div>
+          <div class="stat-box indigo"><div class="stat-lbl">Medications</div><div class="stat-num" id="r-meds">0</div><div class="stat-sub">Added</div></div>
+        </div>
+        <div class="card mt16">
+          <div class="card-title-row">
+            <span class="card-title" style="margin-bottom:0">Generate Report</span>
+            <select id="rep-days" class="small-select"><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option></select>
+          </div>
+          <div id="rep-preview" class="rep-preview"><div class="empty-msg">Select a period and click Generate.</div></div>
+          <div class="rep-actions mt16">
+            <button class="btn-primary" onclick="genReport()">Generate Report</button>
+            <button class="btn-secondary" onclick="dlReport()">⬇ Download JSON</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROFILE ── -->
+      <div id="page-profile" class="page">
+        <div class="page-hd"><h2>Patient Profile</h2><p>Update your personal and medical information</p></div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">Personal Info</div>
+            <div class="field"><label>Full Name</label><input type="text" id="p-name" placeholder="Your name"/></div>
+            <div class="field"><label>Age</label><input type="number" id="p-age" placeholder="Your age"/></div>
+            <div class="field"><label>Gender</label><select id="p-gender"><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+            <div class="field"><label>Weight (kg)</label><input type="number" id="p-weight" placeholder="e.g. 70"/></div>
+            <div class="field"><label>Height (cm)</label><input type="number" id="p-height" placeholder="e.g. 170"/></div>
+            <div class="field"><label>Lifestyle</label>
+              <select id="p-lifestyle"><option value="sedentary">Sedentary</option><option value="light">Light Activity</option><option value="moderate">Moderate</option><option value="active">Active</option></select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Medical Info</div>
+            <div class="field"><label>Diabetes Type</label>
+              <select id="p-dtype"><option value="type1">Type 1</option><option value="type2">Type 2</option><option value="prediabetes">Pre-diabetes</option><option value="gestational">Gestational</option></select>
+            </div>
+            <div class="field"><label>Diagnosed Year</label><input type="number" id="p-year" placeholder="e.g. 2018"/></div>
+            <div class="field"><label>Target Range (mg/dL)</label>
+              <div class="range-row"><input type="number" id="p-low" placeholder="Low (80)"/><span class="range-dash">—</span><input type="number" id="p-high" placeholder="High (140)"/></div>
+            </div>
+            <div class="field"><label>Doctor's Name</label><input type="text" id="p-doc" placeholder="Dr. Name"/></div>
+            <div class="field"><label>Allergies</label><input type="text" id="p-allergies" placeholder="Known allergies..."/></div>
+          </div>
+        </div>
+        <div class="card mt16 center-card">
+          <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+          <div id="p-saved" class="save-confirm hidden">✓ Profile saved! Diet &amp; exercise plans updated.</div>
+        </div>
+      </div>
+
+    </div><!-- /pages-wrap -->
+  </div><!-- /app-main -->
+</div><!-- /screen-app -->
+
+<!-- ═══════════════════════════════════════
+     SAFETY CHECK POPUP
+═══════════════════════════════════════ -->
+<div id="safety-popup" class="popup-overlay hidden">
+  <div class="popup-card" id="safety-popup-card">
+    <!-- Step 1: Are you okay? -->
+    <div id="sp-step1" class="sp-step active">
+      <div class="sp-pulse">
+        <div class="sp-ring r1"></div><div class="sp-ring r2"></div>
+        <div class="sp-heart">♡</div>
+      </div>
+      <h3 class="sp-title">Are you okay?</h3>
+      <p class="sp-sub">Diabetrix safety check — <span id="sp-time"></span></p>
+      <div class="sp-btns">
+        <button class="btn-primary" onclick="spYes()">✓ Yes, I'm Fine</button>
+        <button class="btn-danger"  onclick="spNo()">✗ No, I Need Help</button>
+      </div>
+      <div class="sp-timer-bar"><div class="sp-timer-fill" id="sp-timer-fill"></div></div>
+      <p class="sp-timer-note">Auto-alerting in <span id="sp-auto-countdown">60</span>s if no response</p>
+    </div>
+    <!-- Step 2: Symptoms -->
+    <div id="sp-step2" class="sp-step">
+      <div class="sp-icon-lg">🩺</div>
+      <h3 class="sp-title">How are you feeling?</h3>
+      <p class="sp-sub">Select all symptoms you're experiencing:</p>
+      <div class="symptom-grid">
+        <label class="symptom-item"><input type="checkbox" value="dizziness"/>😵 Dizziness</label>
+        <label class="symptom-item"><input type="checkbox" value="sweating"/>💧 Sweating</label>
+        <label class="symptom-item"><input type="checkbox" value="trembling"/>🫨 Trembling</label>
+        <label class="symptom-item"><input type="checkbox" value="confusion"/>😵‍💫 Confusion</label>
+        <label class="symptom-item"><input type="checkbox" value="blurred_vision"/>👁️ Blurred Vision</label>
+        <label class="symptom-item"><input type="checkbox" value="chest_pain"/>💔 Chest Pain</label>
+        <label class="symptom-item"><input type="checkbox" value="nausea"/>🤢 Nausea</label>
+        <label class="symptom-item"><input type="checkbox" value="headache"/>🤕 Headache</label>
+        <label class="symptom-item"><input type="checkbox" value="extreme_fatigue"/>😴 Extreme Fatigue</label>
+        <label class="symptom-item"><input type="checkbox" value="unconscious"/>⚠️ Feeling Faint</label>
+      </div>
+      <div class="sp-btns mt16">
+        <button class="btn-secondary" onclick="spMild()">Mild — I'll Monitor</button>
+        <button class="btn-danger"    onclick="spSevere()">Severe — Alert Now</button>
+      </div>
+    </div>
+    <!-- Step 3: Alerting -->
+    <div id="sp-step3" class="sp-step">
+      <div class="sp-icon-lg anim-pulse-icon">🚨</div>
+      <h3 class="sp-title">Sending Emergency Alert</h3>
+      <p class="sp-sub" id="sp-alert-msg">Alerting your emergency contacts and sharing your location...</p>
+      <div id="sp-alert-log" class="sp-alert-log"></div>
+      <button class="btn-primary mt16 w100" onclick="spClose()">I'm Safe Now — Close</button>
+    </div>
+    <!-- Step 4: Mild monitoring -->
+    <div id="sp-step4" class="sp-step">
+      <div class="sp-icon-lg">📋</div>
+      <h3 class="sp-title">Symptoms Logged</h3>
+      <p class="sp-sub">Your symptoms have been recorded. We'll check again in 10 minutes.</p>
+      <div id="sp-mild-tips" class="sp-mild-tips"></div>
+      <button class="btn-primary mt16 w100" onclick="spClose()">Okay, I Understand</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
