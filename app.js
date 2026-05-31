@@ -1,4 +1,4 @@
-const API_BASE =  API_BASE = 'https://Rajyalakshmi06-diabetrix-backend.hf.space/api';
+const API_BASE = const API_BASE = 'https://Rajyalakshmi06-diabetrix-backend.hf.space/api';
  * DIABETRIX — app.js  v2.0
  * Features:
  *  - Auth (Login/Signup)
