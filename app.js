@@ -1,4 +1,4 @@
-const API_BASE = 'https://Rajyalakshmi06-diabetrix-backend.hf.space/api';
+const API_BASE = 'https://rajyalakshmi06-diabetrix-backend.hf.space/api';
 
 
 'use strict';
