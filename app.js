@@ -1,14 +1,4 @@
-const API_BASE = const API_BASE = 'https://Rajyalakshmi06-diabetrix-backend.hf.space/api';
- * DIABETRIX — app.js  v2.0
- * Features:
- *  - Auth (Login/Signup)
- *  - Profile Onboarding (4 steps, required before app)
- *  - Personalized Diet & Exercise by age + diabetes type + lifestyle
- *  - 20-minute safety popup with symptom checker
- *  - Auto-alert if no response in 60s
- *  - Emergency contact simulation (SMS/Location)
- *  - All original features: glucose, trends, AI, meds, reports
- */
+const API_BASE = 'https://Rajyalakshmi06-diabetrix-backend.hf.space/api';
 
 'use strict';
 
